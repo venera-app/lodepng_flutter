@@ -23,6 +23,12 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+#ifdef _MSC_VER
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT __attribute__((visibility("default"))) __attribute__((used))
+#endif
+
 #ifndef LODEPNG_H
 #define LODEPNG_H
 
@@ -153,7 +159,7 @@ unsigned lodepng_decode_memory(unsigned char** out, unsigned* w, unsigned* h,
                                LodePNGColorType colortype, unsigned bitdepth);
 
 /*Same as lodepng_decode_memory, but always decodes to 32-bit RGBA raw image*/
-__declspec(dllexport) unsigned lodepng_decode32(unsigned char** out, unsigned* w, unsigned* h,
+DLLEXPORT unsigned lodepng_decode32(unsigned char** out, unsigned* w, unsigned* h,
                           const unsigned char* in, size_t insize);
 
 /*Same as lodepng_decode_memory, but always decodes to 24-bit RGB raw image*/
@@ -210,7 +216,7 @@ unsigned lodepng_encode_memory(unsigned char** out, size_t* outsize,
                                LodePNGColorType colortype, unsigned bitdepth);
 
 /*Same as lodepng_encode_memory, but always encodes from 32-bit RGBA raw image.*/
-__declspec(dllexport) unsigned lodepng_encode32(unsigned char** out, size_t* outsize,
+DLLEXPORT unsigned lodepng_encode32(unsigned char** out, size_t* outsize,
                           const unsigned char* image, unsigned w, unsigned h);
 
 /*Same as lodepng_encode_memory, but always encodes from 24-bit RGB raw image.*/
@@ -1169,7 +1175,7 @@ unsigned compress(std::vector<unsigned char>& out, const std::vector<unsigned ch
 } /* namespace lodepng */
 #endif /*LODEPNG_COMPILE_CPP*/
 
-__declspec(dllexport) void freePtr(void* p);
+DLLEXPORT void freePtr(void* p);
 
 /*
 TODO:

@@ -76,10 +76,8 @@ Uint8List encodePng(Image image) {
   );
   final size = outsize.value;
   final out1 = out.value;
-  final pngData = out1.cast<Uint8>().asTypedList(
-    size,
-    finalizer: _dylib.lookup("freePtr"),
-  );
+  final pngData = Uint8List.fromList(out1.cast<Uint8>().asTypedList(size));
+  _bindings.freePtr(out1.cast());
   malloc.free(out);
   malloc.free(outsize);
   malloc.free(in1);

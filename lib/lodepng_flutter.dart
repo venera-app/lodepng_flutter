@@ -39,6 +39,16 @@ class Image {
 
 /// Decodes a PNG image from [data].
 Image decodePng(Uint8List data) {
+  final buffer = decodePngToPointer(data);
+  final data1 = Pointer<Uint8>
+      .fromAddress(buffer.address)
+      .asTypedList(buffer.length);
+  final image = Image(data1, buffer.length ~/ 4, buffer.length ~/ 4);
+  _bindings.freePtr(Pointer.fromAddress(buffer.address));
+  return image;
+}
+
+ByteBuffer decodePngToPointer(Uint8List data) {
   Pointer<Pointer<UnsignedChar>> out = malloc.allocate(sizeOf<Pointer>());
   Pointer<UnsignedInt> w = malloc.allocate(sizeOf<UnsignedInt>());
   Pointer<UnsignedInt> h = malloc.allocate(sizeOf<UnsignedInt>());
@@ -52,16 +62,31 @@ Image decodePng(Uint8List data) {
   malloc.free(h);
   malloc.free(in1);
   final out1 = out.value;
-  final imageData = out1.cast<Uint8>().asTypedList(
-        width * height * 4,
-        finalizer: _dylib.lookup("freePtr"),
-      );
   malloc.free(out);
-  return Image(imageData, width, height);
+  return ByteBuffer(out1.address, width * height * 4);
 }
 
 /// Encodes [image] to a PNG image.
 Uint8List encodePng(Image image) {
+  final buffer = encodePngToPointer(image);
+  final data = Pointer<Uint8>
+      .fromAddress(buffer.address)
+      .asTypedList(buffer.length);
+  _bindings.freePtr(Pointer.fromAddress(buffer.address));
+  return data;
+}
+
+class ByteBuffer {
+  final int address;
+
+  final int length;
+
+  ByteBuffer(this.address, this.length);
+
+  static Pointer<NativeFinalizerFunction> get finalizer => _dylib.lookup('freePtr');
+}
+
+ByteBuffer encodePngToPointer(Image image) {
   Pointer<Pointer<UnsignedChar>> out = malloc.allocate(sizeOf<Pointer>());
   Pointer<Size> outsize = malloc.allocate(sizeOf<Size>());
   final insize = image.data.length;
@@ -76,10 +101,8 @@ Uint8List encodePng(Image image) {
   );
   final size = outsize.value;
   final out1 = out.value;
-  final pngData = Uint8List.fromList(out1.cast<Uint8>().asTypedList(size));
-  _bindings.freePtr(out1.cast());
   malloc.free(out);
   malloc.free(outsize);
   malloc.free(in1);
-  return pngData;
+  return ByteBuffer(out1.address, size);
 }

@@ -5,13 +5,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(lodepng_flutter_library VERSION 0.0.1 LANGUAGES C)
 
+add_link_options("-Wl,--build-id=none")
 add_library(lodepng_flutter SHARED
   "lodepng.c"
   "lodepng.h"
 )
-
-add_link_options("-Wl,--build-id=none")
-
 set_target_properties(lodepng_flutter PROPERTIES
   PUBLIC_HEADER lodepng.h
   OUTPUT_NAME "lodepng_flutter"

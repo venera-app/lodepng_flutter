@@ -10,11 +10,11 @@ add_library(lodepng_flutter SHARED
   "lodepng.h"
 )
 
+add_link_options("-Wl,--build-id=none")
+
 set_target_properties(lodepng_flutter PROPERTIES
   PUBLIC_HEADER lodepng.h
   OUTPUT_NAME "lodepng_flutter"
 )
 
 target_compile_definitions(lodepng_flutter PUBLIC DART_SHARED_LIB)
-
-add_link_options("-Wl,--build-id=none")
